@@ -5,5 +5,5 @@ Writeup of the <a href="https://tryhackme.com/room/inferno" target="_blank">Infe
 # Enumeration
 Running a rustscan on the targer gives the following result:
 <br><strong>rustscan -a 10.10.121.130 -- -A -sC -sV -oN scan.txt</strong>
-<iframe src="scan.txt" width="900" title="scan_iframe"></iframe>
+<iframe src="https://raw.githubusercontent.com/i-am-jezz/Inferno-Writeup-Tryhackme/main/scan.txt" width="900" title="scan_iframe"></iframe>
 
