@@ -39,3 +39,27 @@ Tried to bruteforce ssh but no luck :(
 
 Now the http site:<br>
 <p align="center"><img src="webimg.png" height="700" width="800"></p>
+Just lines from Dante's Inferno(canto XXXIV) and the 9 circles of Hell.<br>
+Ok, moving on...<br>
+Running a gobuster scan on the site gives the following result:<br>
+
+===============================================================<br>
+Gobuster v3.0.1<br>
+by OJ Reeves (@TheColonial) & Christian Mehlmauer (@_FireFart_)<br>
+===============================================================<br>
+[+] Url:            http://10.10.121.130/<br>
+[+] Threads:        50,<br>
+[+] Wordlist:       /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt<br>
+[+] Status codes:   200,204,301,302,307,401,403<br>
+[+] User Agent:     gobuster/3.0.1<br>
+[+] Extensions:     php,html,sh,bin,cgi<br>
+[+] Timeout:        10s<br>
+===============================================================<br>
+2021/02/14 18:11:42 Starting gobuster<br>
+===============================================================<br>
+/index.html (Status: 200)<br>
+/inferno (Status: 401)<br>
+/server-status (Status: 403)<br>
+
+
+
