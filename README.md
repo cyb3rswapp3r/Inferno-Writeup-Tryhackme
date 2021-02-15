@@ -1,6 +1,6 @@
 <p align="center">
     •<a href="#enumeration">Enumeration</a>•
-    <a href="#ccess">Access</a>•
+    <a href="#access">Access</a>•
     <a href="#privilege escalation">Privilege Escalation</a>•
 </p><br>
 
@@ -38,10 +38,11 @@ There are many ports open but ssh(22) and http(80) are the only services running
 Tried to bruteforce ssh but no luck :(
 
 Now the http site:<br>
-<p align="center"><img src="webimg.png" height="700" width="800"></p>
+<p align="center"><img src="webimg.png" height="700" width="800" alt="frontpage"></p>
 Just lines from Dante's Inferno(canto XXXIV) and the 9 circles of Hell.<br>
 Ok, moving on...<br>
 Running a gobuster scan on the site gives the following result:<br>
+<strong>gobuster dir -u http://10.10.121.130 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x php,html,sh,bin,cgi -t 50</strong><br>
 
 ===============================================================<br>
 Gobuster v3.0.1<br>
@@ -61,5 +62,26 @@ by OJ Reeves (@TheColonial) & Christian Mehlmauer (@_FireFart_)<br>
 /inferno (Status: 401)<br>
 /server-status (Status: 403)<br>
 
-
-
+There is an interesting directory named <strong>inferno</strong>.
+But navigating to it prompts an auth box (Basic Auth).<br>
+Since we don't have any credentials bruteforce FTW!<br>
+# Access
+I shortlisted some possible Usernames:
+```
+root
+admin
+dante 
+inferno
+quanto
+durante
+```
+Bruteforcing with hydra gives the following credentials:<br>
+<strong>hydra -L usernames.txt -P ~/rockyou.txt 10.10.121.130 http-get /inferno/ -t 64</strong>
+```
+[80][http-get] host: 10.10.121.130   login: admin   password: REDACTED
+```
+Using the credentials leads to another login page:<br>
+<p align="center"><img src="loginpage.png" alt="codiad">
+<br></p>
+Using the same credentials we can login.<b>Success!</b>
+<p align="center"><img src="codiad.png" height="600" width="800" alt="codiad_content"></p>
