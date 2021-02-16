@@ -6,7 +6,7 @@
 </p><br>
 
 # Inferno-Writeup-Tryhackme
-Writeup of the <a href="https://tryhackme.com/room/inferno" target="_blank">Inferno</a>(made by @mindsflee) machine on <a href="https://tryhackme.com" targer="_blank">TryHackMe</a>
+Writeup of the <a href="https://tryhackme.com/room/inferno" target="_blank">Inferno</a>(made by<a href="https://tryhackme.com/p/mindsflee">@mindsflee</a>) machine on <a href="https://tryhackme.com" targer="_blank">TryHackMe</a>
 
 
 # Enumeration
