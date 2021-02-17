@@ -208,7 +208,7 @@ Matching Defaults entries for dante on Inferno:
 User dante may run the following commands on Inferno:
     (root) NOPASSWD: /usr/bin/tee
 ```
-Looks like <i>/usr/bin/tee</i>can be run by dante without a password.<br>
+Looks like <i>/usr/bin/tee</i> can be run by dante without a password.<br>
 Looking at gtfobins gives us the following <a href="https://gtfobins.github.io/gtfobins/tee/">exploit</a> for privilege escalation:
 ```bash
 LFILE=file_to_write
